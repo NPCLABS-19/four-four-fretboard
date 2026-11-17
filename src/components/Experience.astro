@@ -1,0 +1,119 @@
+---
+import { withBase } from '../lib/url';
+import { chords, projects, tuningNames, noteName } from '../data/site';
+import '../styles/site.css';
+interface Props { project?: boolean }
+const { project = false } = Astro.props;
+const title = project ? 'BUDX NBA House | 4/4 Experiences' : '4/4 Experiences | Work in four strings';
+const description = project ? 'Creative development, production, showrunning and on-ground execution for BUDX NBA House 2025. An experience by 4/4.' : '4/4 Experiences is a subculture think tank. Play four strings to discover our branded experiences, original IPs and festival work.';
+---
+<!doctype html>
+<html lang="en" data-theme="night" data-initial-project={String(project)}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f2f2ee" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site).href} />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={new URL(withBase('/images/nba-1.webp'), Astro.site).href} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'Organization', name: '4/4 Experiences', description, email: 'contact@fourbyfour.in' })} />
+  </head>
+  <body class:list={{ 'case-open': project }}>
+    <a class="skip-link" href={project ? '#project-content' : '#fretboard'}>Skip to content</a>
+    <div id="home" hidden={project} inert={project}>
+      <header class="site-header">
+        <a class="wordmark" href={withBase('/')} aria-label="4/4 Experiences home"><img class="brand-logo" src={withBase('/images/logo.png')} alt="4/4 Experiences" width="2947" height="758" /></a>
+        <nav aria-label="Main navigation">
+          <button class="text-link" data-dialog="about"><span>About</span><span aria-hidden="true">About</span></button>
+          <button class="text-link" data-dialog="index"><span>Index</span><span aria-hidden="true">Index</span></button>
+          <a class="text-link" href="mailto:contact@fourbyfour.in"><span>Contact</span><span aria-hidden="true">Contact</span></a>
+          <button class="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="Switch to night mode"><span class="theme-orb" aria-hidden="true"></span><span data-theme-label>Night</span></button>
+        </nav>
+      </header>
+
+      <main id="fretboard" aria-label="Four playable strings and project archive" tabindex="-1">
+        <h1 class="sr-only">4/4 Experiences. Work in four strings.</h1>
+        <div class="project-info" aria-live="polite" aria-atomic="true">
+          <p class="project-info-title" data-project-title>BUDX NBA House</p>
+          <div class="info-rule"><span data-project-category>Branded experiences</span><span data-project-year>2025</span></div>
+          <p class="project-info-action" data-project-action>View ↗</p>
+        </div>
+
+        <div class="score-position"><span data-chapter>01</span><span class="score-line"></span><span>03</span></div>
+
+        <div class="instrument" data-instrument>
+          <svg class="strings" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            {tuningNames.map((_, i) => <g><path class="string-shadow" data-string-shadow={i} fill="none" vector-effect="non-scaling-stroke" /><path class="string-core" data-string={i} fill="none" vector-effect="non-scaling-stroke" /><path class="string-highlight" data-string-highlight={i} fill="none" vector-effect="non-scaling-stroke" /><path class="string-winding" data-string-winding={i} fill="none" vector-effect="non-scaling-stroke" /></g>)}
+          </svg>
+          <div class="string-labels" aria-hidden="true">{tuningNames.map((name, i) => <span style={`--row:${i}`}>{name}</span>)}</div>
+
+          <div class="fretboard-world" data-world>
+            {chords.map((chord, sceneIndex) => (
+              <section class="chord-section" data-scene={sceneIndex} aria-label={`${chord.name}: ${chord.description}`} aria-hidden={sceneIndex !== 0} inert={sceneIndex !== 0} style={`--scene:${sceneIndex}`}>
+                <div class="frets" aria-hidden="true">{Array.from({ length: 6 }, (_, i) => <span class="fret" style={`--fret:${i}`}><span>{String(i).padStart(2, '0')}</span></span>)}</div>
+                {chord.images.map((image, row) => {
+                  const key = chord.project;
+                  const item = projects[key];
+                  const Tag = item.ready ? 'a' : 'button';
+                  return (
+                    <Tag class:list={['project-node', { 'main-note': row === chord.mainRow }]} href={item.ready ? withBase('/projects/budx-nba-house/') : undefined} type={item.ready ? undefined : 'button'} data-project={key} data-row={row} data-fret={chord.frets[row]} data-main-note={row === chord.mainRow ? '' : undefined} data-scene-id={sceneIndex} aria-label={`${item.title}. ${chord.name}. ${tuningNames[row]} string, fret ${chord.frets[row]}, ${noteName(row, chord.frets[row])}. ${item.ready ? 'Open project' : 'Preview only. Play chord'}`} style={`--row:${row};--fret:${chord.frets[row]};--tilt:${[-8, 6, -5, 8][row]}deg;`}>
+                      <span class="note-motion"><span class="disc"><img src={withBase(image)} alt={row === chord.mainRow ? item.alt : `${item.title}, project archive photograph ${row + 1}`} width="1400" height="1400" loading={sceneIndex === 0 ? 'eager' : 'lazy'} decoding="async" fetchpriority={key === 'nba' && row === chord.mainRow ? 'high' : 'auto'} /><span class="disc-shine" aria-hidden="true"></span><span class="rim-light" aria-hidden="true"></span><span class="disc-hub" aria-hidden="true"></span><span class="disc-overlay"><span class="disc-overlay-title">{item.title}</span><span class="disc-overlay-meta">{chord.roles[row].replace(` / ${item.year}`, '')} · {item.year}</span><span class="disc-overlay-action">{item.ready ? 'View project ↗' : 'Preview'}</span></span>{row === chord.mainRow && <span class="disc-print" aria-hidden="true">4/4 EXPERIENCES · {item.title.toUpperCase()}</span>}</span><span class="fret-number">{chord.roles[row]}</span></span>
+                      <span class="note-caption"><span>{item.title}</span><span class="note-caption-state">{item.ready ? 'View project ↗' : 'Preview'}</span></span>
+                    </Tag>
+                  );
+                })}
+              </section>
+            ))}
+          </div>
+        </div>
+        <div class="service-breaks" aria-hidden="true"><span data-service="0">Production design</span><span data-service="1">IP creation</span><span data-service="2">Curation</span><span data-service="3">Showrunning</span></div>
+
+        <div class="chord-readout">
+          <button class="chord-button" data-play-chord aria-label="Play current chord"><span data-chord-name>Gmaj7</span><span class="chord-play" aria-hidden="true">↗</span></button>
+          <p class="sr-only" data-chord-description>Brand-led experiences</p>
+        </div>
+        <div class="browse-controls"><button data-prev aria-label="Previous chord">←</button><p><span class="desktop-instruction">Scroll for next project</span><span class="touch-instruction">Swipe to explore</span></p><button data-next aria-label="Next chord">→</button></div>
+      </main>
+      <footer class="home-footer"><button class="zoom-toggle" data-zoom aria-pressed="false">Zoom out</button><button class="sound-toggle" data-sound aria-pressed="false"><span class="sound-waves" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span data-sound-label>Sound off</span></button></footer>
+    </div>
+
+    <article id="project" class="project-page" hidden={!project} inert={!project} aria-label="BUDX NBA House project breakdown">
+      <div class="case-hero">
+        <img class="case-hero-image" src={withBase('/images/nba-cover-new.webp')} width="1400" height="933" alt="A basketball dunk above the audience at BUDX NBA House" loading={project ? 'eager' : 'lazy'} />
+        <div class="case-hero-scrim" aria-hidden="true"></div>
+        <nav class="case-nav" aria-label="Project navigation"><a href={withBase('/')} data-back><span aria-hidden="true">←</span> Back to the fretboard</a><a href={withBase('/')} data-back class="case-wordmark" aria-label="4/4 Experiences home"><img src={withBase('/images/logo-white.png')} alt="4/4 Experiences" width="2947" height="758" /></a></nav>
+        <div class="case-title-group"><p class="case-kicker">Branded experiences / 2025</p><h2 id="project-heading" tabindex="-1">BUDX<br />NBA House</h2><p>Basketball. Music. Culture.<br />One house, brought to life.</p></div>
+        <a class="case-scroll" href="#project-content">The breakdown <span aria-hidden="true">↓</span></a>
+      </div>
+      <div id="project-content" class="case-content" tabindex="-1">
+        <section class="case-intro">
+          <div class="case-section-label">The experience</div>
+          <div><h3>A global property.<br />An Indian first.</h3><p>India’s first BUDX NBA House brought basketball, music and culture into one shared space. NBA, Budweiser and District came together for a two-day brand experience.</p><p>4/4 led end-to-end production, from creative development and showrunning to the details of on-ground execution.</p></div>
+          <dl class="case-facts"><div><dt>Project</dt><dd>BUDX NBA House</dd></div><div><dt>Year</dt><dd>2025</dd></div><div><dt>4/4’s role</dt><dd>Creative development<br />Production<br />Showrunning<br />On-ground execution</dd></div><div><dt>Spatial design</dt><dd>Aaquib Wani Design</dd></div></dl>
+        </section>
+        <figure class="case-wide"><img src={withBase('/images/nba-3.webp')} alt="A wide view of the crowd and NBA House stage lighting" width="2200" height="1467" loading="lazy" /><figcaption>The scale of a live experience, built around the people in it.</figcaption></figure>
+        <section class="case-statement"><p>From the first build<br />to the final buzzer.</p><div><h3>Every part in play.</h3><p>Working with Aaquib Wani Design’s spatial vision, we translated an ambitious concept into a live environment across formats and touchpoints. Production and showrunning held the experience together, while the details gave every space a purpose.</p></div></section>
+        <div class="case-pair"><figure><img src={withBase('/images/nba-5.webp')} alt="The Budweiser bar within NBA House, lit in red" width="1600" height="1067" loading="lazy" /><figcaption>Places to meet, between the main moments.</figcaption></figure><figure><img src={withBase('/images/nba-4.webp')} alt="An overhead view of the NBA House experience and installations" width="1600" height="1067" loading="lazy" /><figcaption>A connected world of courts, stages and shared spaces.</figcaption></figure></div>
+        <section class="case-credits"><p>Credits</p><div><p>Experience: NBA, Budweiser &amp; District<br />Production &amp; showrunning: 4/4 Experiences<br />Spatial design: Aaquib Wani Design<br />Photography: supplied 4/4 project archive</p><a href="mailto:contact@fourbyfour.in">Make something with us ↗</a></div></section>
+        <footer class="case-end"><span>There’s more to play.</span><a href={withBase('/')} data-back>Back to the fretboard <span aria-hidden="true">↗</span></a><span class="case-end-mark">4/4</span></footer>
+      </div>
+    </article>
+
+    <dialog id="about-dialog" class="info-dialog"><div class="dialog-top"><span>About 4/4</span><button data-close-dialog aria-label="Close about">Close ×</button></div><h2>We grew up<br />in the scene.<br />Now we help<br />shape it.</h2><div class="dialog-copy"><p>4/4 Experiences is a subculture think tank. We bring consultancy and turnkey execution together across festivals, brand-led experiences and our own cultural properties.</p><p>Creative vision, grounded in the scene.<br />Production, built to make it happen.</p><a href="mailto:contact@fourbyfour.in">contact@fourbyfour.in ↗</a></div></dialog>
+    <dialog id="index-dialog" class="index-dialog"><div class="dialog-top"><span>Project index</span><button data-close-dialog aria-label="Close project index">Close ×</button></div><h2>Find your frequency.</h2><div class="index-list">{Object.entries(projects).map(([key, item]) => <button data-index-project={key}><img src={withBase(item.image)} alt="" width="80" height="80" loading="lazy" /><span>{item.title}<small>{item.category}</small></span><span class="index-state">{item.ready ? 'View project ↗' : 'Preview only'}</span></button>)}</div></dialog>
+    <div class="project-transition" data-transition aria-hidden="true"><img src={withBase('/images/nba-cover-new.webp')} alt="" width="1400" height="933" /></div>
+    <p class="announcement sr-only" data-announcement aria-live="polite"></p>
+    <p class="preview-toast" data-toast role="status"></p>
+    <script>
+      import { start } from '../scripts/experience';
+      start();
+    </script>
+  </body>
+</html>
