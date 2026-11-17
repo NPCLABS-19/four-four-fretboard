@@ -128,16 +128,44 @@ html[data-theme=night] .main-note .disc{box-shadow:2px 4px 0 #657076,3px 6px 0 #
 .main-note .fret-number{top:calc(100% + 19px)}
 .rim-light{position:absolute;inset:0;border-radius:50%;pointer-events:none;background:radial-gradient(circle at var(--light-x,50%) var(--light-y,50%),#fff 0,#e4efffcf 18%,transparent 65%);mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 2px));opacity:0;transition:opacity .3s;z-index:4}
 .project-node:hover .rim-light,.project-node:focus-visible .rim-light{opacity:1}
-.zoom-toggle{font-size:10px;padding:8px;min-height:28px;margin-right:25px;transition:translate .3s}
-.zoom-toggle:hover{translate:0 -2px}
 .service-breaks{position:absolute;inset:0;z-index:5;pointer-events:none}
 .service-breaks span{position:absolute;translate:-50% -50%;padding:4px 13px;background:var(--ground);color:var(--muted);font:11px Helvetica,Arial,sans-serif;white-space:nowrap;opacity:0;transition:opacity .16s}
-body[data-overview=true] .project-node:not(.main-note) .disc img,body[data-overview=true] .project-node:not(.main-note) .disc-hub,body[data-overview=true] .project-node:not(.main-note) .disc-shine,body[data-overview=true] .project-node:not(.main-note) .disc-overlay{opacity:0}
-body[data-overview=true] .project-node:not(.main-note) .disc{background:#f6f7ee;box-shadow:none;padding:0}
-body[data-overview=true] .fret-number{opacity:0}
-body[data-overview=true] .project-node.main-note .fret-number{opacity:1;color:var(--ink);font-size:20px}
 body.arranging .disc-overlay,body.arranging .fret-number{opacity:0}
 @media(max-width:650px){.disc-overlay-title{font-size:18px}.disc-overlay-meta,.disc-overlay-action{font-size:8px}.disc-overlay-action{margin-top:6px}.disc-overlay{padding:15% 11%}.zoom-toggle{margin-right:10px}.fret-number{font-size:9px}}
 .chord-section{left:calc(var(--scene)*var(--chapter-spacing,1.55)*100%)}
 .instrument{clip-path:inset(93px 0 77px)}
 .home-footer,.site-header{z-index:30}
+
+/* Local score study: a typographic identity and a grouped musical index. */
+.canvas-type{position:absolute;inset:0;pointer-events:none;z-index:8;overflow:hidden}
+.canvas-composition{position:absolute;inset:0;opacity:0;color:var(--ink);pointer-events:none}
+.canvas-label{position:absolute;left:var(--gutter);top:14.8%;font-size:11px;font-weight:500;letter-spacing:.03em}
+.canvas-title{position:absolute;left:calc(var(--gutter) - .055em);top:18%;font-family:Helvetica,Arial,sans-serif;font-size:clamp(72px,8vw,158px);font-weight:900;line-height:.79;letter-spacing:-.075em;margin:0}
+.canvas-title>span{display:block}
+.canvas-colophon{position:absolute;right:var(--gutter);bottom:112px;display:flex;flex-direction:column;align-items:flex-end;text-align:right;gap:19px;max-width:29vw}
+.canvas-foot{font-size:clamp(13px,1.05vw,18px);font-weight:700;line-height:1.1;letter-spacing:-.015em}
+.canvas-credit{font-size:11px;line-height:1.5;white-space:pre-line}
+.canvas-edition{font-size:9px;letter-spacing:.07em;opacity:.65}
+.composition-1 .canvas-label{top:18%;left:6.8vw}
+.composition-1 .canvas-title{top:22%;left:6.5vw;font-size:clamp(66px,7.6vw,150px);letter-spacing:-.08em}
+.composition-1 .canvas-colophon{right:8vw;bottom:132px;align-items:flex-start;text-align:left;border-left:1px solid var(--line);padding-left:18px}
+.composition-1 .canvas-foot{max-width:160px;font-size:clamp(19px,1.6vw,28px);letter-spacing:-.045em}
+.composition-2 .canvas-title{left:auto;right:var(--gutter);top:auto;bottom:122px;text-align:right;font-size:clamp(60px,6.2vw,130px);line-height:.84}
+.composition-2 .canvas-label{top:21%;font-size:12px;font-weight:700;max-width:30vw}
+.composition-2 .canvas-colophon{left:var(--gutter);right:auto;top:25%;bottom:auto;align-items:flex-start;text-align:left;max-width:31vw;gap:16px}
+.composition-2 .canvas-foot{font-size:12px;font-weight:400;letter-spacing:0}
+.composition-2 .canvas-credit{font-size:10px;color:var(--muted)}
+.disc-overlay{display:none!important}
+.project-node .disc-shine{opacity:.35}
+@media(max-width:650px){.canvas-label{top:15%;font-size:8px}.canvas-title{top:18%;font-size:14vw;line-height:.82}.canvas-colophon{bottom:118px;max-width:43vw;gap:12px}.canvas-foot{font-size:10px}.canvas-credit{font-size:8px}.canvas-edition{font-size:7px}.composition-1 .canvas-title{font-size:13vw;left:var(--gutter);top:23%}.composition-1 .canvas-label{left:var(--gutter);top:20%}.composition-1 .canvas-colophon{right:var(--gutter);bottom:116px;padding-left:10px}.composition-1 .canvas-foot{font-size:13px;max-width:120px}.composition-2 .canvas-title{font-size:12vw;bottom:128px}.composition-2 .canvas-label{top:18%;max-width:50vw;font-size:9px}.composition-2 .canvas-colophon{top:23%;max-width:45vw}.composition-2 .canvas-foot{font-size:9px}.composition-2 .canvas-credit{font-size:8px}}
+
+/* Focus follows the tilted disc rather than drawing a second floating circle. */
+.project-node:focus-visible{outline:none}
+.project-node:focus-visible .disc{outline:1px solid var(--ink);outline-offset:5px}
+
+/* Service-led hover credits, restored original identity, no overview control. */
+.canvas-colophon{max-width:29vw;gap:18px}
+.canvas-foot,.composition-1 .canvas-foot,.composition-2 .canvas-foot{font-size:clamp(22px,2vw,36px);font-weight:700;line-height:1;letter-spacing:-.045em;white-space:pre-line;max-width:none}
+.canvas-credit,.composition-2 .canvas-credit{font-size:clamp(13px,.95vw,16px);line-height:1.45;color:var(--ink)}
+.composition-2 .canvas-colophon{top:26%;max-width:32vw}
+@media(max-width:650px){.canvas-colophon{max-width:45vw;gap:12px}.canvas-foot,.composition-1 .canvas-foot,.composition-2 .canvas-foot{font-size:18px}.canvas-credit,.composition-2 .canvas-credit{font-size:11px}.composition-2 .canvas-colophon{max-width:47vw}}

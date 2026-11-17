@@ -1,44 +1,32 @@
 # 4/4 fretboard prototype
 
-Live development preview: http://127.0.0.1:4321
+Local preview: http://127.0.0.1:4321/
 
 ```sh
 npm install
 npm run dev
 ```
 
-Astro serves the local preview with live updates. The project includes its own compatible Node runtime as a development dependency.
+Astro, TypeScript, GSAP and Web Audio. A compatible Node runtime is included as a development dependency.
 
-## Interactions
+## Current local revision
 
-- Default black theme; Day switches the palette.
-- First click unlocks sound. Sound toggles both the muted electric notes and the warm drone.
-- Cross a string to play it; click the chord label or press Space to hear the rising chord. Keys 1–4 play individual notes.
-- Wheel, horizontal trackpad, drag, or arrow keys move between projects.
-- Hover or focus a disc for its image overlay and cursor-lit rim.
-- Zoom out shows the full fretboard; auxiliary image dots become white circles.
-- NBA House opens a full-screen case study; Back restores the fretboard.
-- Other project breakdowns remain previews. Service captions and editorial labels are prototype copy.
+- Original supplied 4/4 logo, with black and white assets for day/night modes.
+- Sound defaults to on each load. Playback starts immediately where permitted, otherwise the first user interaction unlocks it. The Sound button still allows muting.
+- No Zoom out control or project-score view. About and Index retain their hover animation and do not open panels.
+- Three project chords, each with four supplied photographs. Surrounding discs are 30% smaller, with spacing designed to prevent overlaps.
+- Hover/focus reveals large project typography on the canvas. Each project uses a different composition. Larger service headings describe production, experience design or spatial curation.
+- Strings are playable; wheel, drag and arrows navigate projects. Scroll speed modulates the drone.
+- NBA House opens a full case study; Back restores the fretboard. Other case studies are labelled previews.
+- A two-second arrangement introduces the discs; reduced motion skips it.
 
-## Content and music
+## Review and publication
 
-Three project chords are implemented. All four images in each chord come from that project:
+Approved revision: original logo, larger service-led hover typography, no Zoom out, hover-only About and Index, and sound on by default. Live site: https://npclabs-19.github.io/four-four-fretboard/.
 
-| Project | Chord | D / G / B / E string frets | Sounding notes |
-| --- | --- | --- | --- |
-| BUDX NBA House | Gmaj7 | 5 / 4 / 3 / 2 | G3 / B3 / D4 / F♯4 |
-| Red Bull 64 Bars | Amaj7 | 7 / 6 / 5 / 4 | A3 / C♯4 / E4 / G♯4 |
-| PUMA × Jaipur Rugs | Fmaj7 | 3 / 2 / 1 / 0 | F3 / A3 / C4 / E4 |
+Repository: https://github.com/NPCLABS-19/four-four-fretboard
 
-The main disc is larger; other discs are exactly 30% smaller. Chapter spacing includes a long service interlude and keeps neighbouring projects apart. The introductory arrangement lasts two seconds.
-
-Photographs and actual black/white logos came from the supplied Drive library. Source ledgers are in `public/images/asset-sources.json` and `cover-candidates.json`. Personal contact details from the chat are not included.
-
-GitHub Pages: https://npclabs-19.github.io/four-four-fretboard/
-
-Source: https://github.com/NPCLABS-19/four-four-fretboard
-
-Deploy updates with `npm run deploy` after committing source changes to `main`. The script checks types, builds with the GitHub Pages base path and pushes only generated website files to `gh-pages`. GitHub Pages serves that branch. Local previews continue to use `/` at port 4321. The public prototype remains excluded from search indexing while case-study placeholders are in use.
+`npm run deploy` checks types, builds with the GitHub Pages base path and pushes generated output to `gh-pages`. Approved source changes are tracked on `main`. GitHub / NPCLABS-19 is the only authorised hosting destination.
 
 ## Checks
 

@@ -24,3 +24,9 @@ export function noteName(row: number, fret: number) {
   const midi = tuningMidi[row] + fret;
   return ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'][midi % 12] + (Math.floor(midi / 12) - 1);
 }
+
+export const canvasTitles = [
+  { lines: ['NBA', 'HOUSE'], label: '“BUDX” / 2025', credit: 'Creative development\nShowrunning + on-ground execution', foot: 'END-TO-END\nPRODUCTION.' },
+  { lines: ['64 BARS'], label: '“RED BULL” / 2025', credit: 'Booth design\nArtist programming + production', foot: 'EXPERIENCE DESIGN\n+ PRODUCTION.' },
+  { lines: ['SUEDE', 'SOUNDS'], label: '“PUMA × JAIPUR RUGS” / 2026', credit: 'Space design\nCuration + brand experience', foot: 'SPACE DESIGN\n+ CURATION.' },
+];

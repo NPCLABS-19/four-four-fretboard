@@ -21,8 +21,6 @@ export function start() {
     const windings = [...document.querySelectorAll<SVGPathElement>('[data-string-winding]')];
     const info = document.querySelector<HTMLElement>('.project-info')!;
     const soundButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-sound]')];
-    const about = document.getElementById('about-dialog') as HTMLDialogElement;
-    const indexDialog = document.getElementById('index-dialog') as HTMLDialogElement;
     const title = document.querySelector<HTMLElement>('[data-project-title]')!;
     const category = document.querySelector<HTMLElement>('[data-project-category]')!;
     const year = document.querySelector<HTMLElement>('[data-project-year]')!;
@@ -35,7 +33,7 @@ export function start() {
     const announce = document.querySelector<HTMLElement>('[data-announcement]')!;
     const toastElement = document.querySelector<HTMLElement>('[data-toast]')!;
     const themeButton = document.querySelector<HTMLButtonElement>('[data-theme-toggle]')!;
-    const zoomButton = document.querySelector<HTMLButtonElement>('[data-zoom]')!;
+    const canvasCopies = [...document.querySelectorAll<HTMLElement>('[data-canvas-copy]')];
     const services = [...document.querySelectorAll<HTMLElement>('[data-service]')];
     const audio = new StringAudio();
     const abort = new AbortController();
@@ -61,7 +59,7 @@ export function start() {
     let desiredProject = isProject;
     let busy = false;
     let firstInteraction = false;
-    let soundWanted = import.meta.env.PUBLIC_SOUND_DEFAULT === 'on';
+    let soundWanted = true;
     let sourcePoint: { x: number; y: number; radius: number } | null = null;
     let sourceNode: HTMLElement | null = null;
     let metaKey: ProjectKey | null = null;
@@ -75,12 +73,7 @@ export function start() {
     let neckAngle = .3;
     let focusX = width * .58;
     let focusY = height * .49;
-    let overview = false;
     const chapterSpacing = 1.55;
-    let overviewScale = .2;
-    let overviewX = 0;
-    let overviewY = 0;
-    const zoom = { value: 0 };
     let arranging = false;
     const setWorldX = gsap.quickSetter(world, 'x', 'px');
     gsap.set(world, { transformOrigin: '0 0' });
@@ -127,22 +120,8 @@ export function start() {
         item.node.style.width = `${item.row === chord.mainRow ? noteSize : dotSize}px`;
         item.node.style.height = `${item.row === chord.mainRow ? noteSize : dotSize}px`;
       });
-      const bounds = motions.map(item => {
-        const x = (item.slot + item.section * chapterSpacing) * width;
-        const radius = (item.row === chords[item.section].mainRow ? noteSize : dotSize) * .53;
-        const y = stringY(x / width, item.row);
-        return { left: x - radius, right: x + radius, top: y - radius, bottom: y + radius + 28 };
-      });
-      const minX = Math.min(...bounds.map(b => b.left));
-      const maxX = Math.max(...bounds.map(b => b.right));
-      const minY = Math.min(...bounds.map(b => b.top));
-      const maxY = Math.max(...bounds.map(b => b.bottom));
-      const padding = Math.min(width * .05, 64);
-      const availableHeight = Math.max(100, height - 210);
-      overviewScale = Math.min((width - padding * 2) / (maxX - minX), availableHeight / (maxY - minY), .5);
-      overviewX = (width - (maxX - minX) * overviewScale) / 2 - minX * overviewScale;
-      overviewY = 113 + (availableHeight - (maxY - minY) * overviewScale) / 2 - minY * overviewScale + Math.tan(neckAngle) * overviewX;
     }
+
     function toast(message: string) {
       toastElement.textContent = message;
       toastTween?.kill();
@@ -157,13 +136,17 @@ export function start() {
       year.textContent = item.year;
       action.textContent = item.ready ? 'View ↗' : 'Preview';
     }
+    function canvasType(value: number | null) {
+      canvasCopies.forEach((copy, i) => gsap.to(copy, { opacity: value === i ? 1 : 0, y: value === i ? 0 : 8, duration: .55, ease: ease.soft, overwrite: true }));
+    }
     function updateScene(value: number) {
       if (scene === value) return;
       scene = value;
       const chord = chords[value];
       document.body.dataset.chord = chord.name;
       document.body.dataset.section = String(value);
-      scenes.forEach((element, i) => { element.inert = !overview && i !== value; element.setAttribute('aria-hidden', String(!overview && i !== value)); });
+      scenes.forEach((element, i) => { element.inert = i !== value; element.setAttribute('aria-hidden', String(i !== value)); });
+      canvasType(null);
       chapter.textContent = String(value + 1).padStart(2, '0');
       chordName.textContent = chord.name;
       chordDescription.textContent = chord.description;
@@ -177,14 +160,6 @@ export function start() {
       target = gsap.utils.clamp(0, chords.length - 1, value);
       needsSnap = false;
       if (reducedMotion()) { position = target; setWorldX(-position * width * chapterSpacing); updateScene(Math.round(position)); }
-    }
-    function setOverview(value: boolean) {
-      overview = value;
-      document.body.dataset.overview = String(value);
-      zoomButton.setAttribute('aria-pressed', String(value));
-      zoomButton.textContent = value ? 'Zoom in' : 'Zoom out';
-      scenes.forEach((element, i) => { element.inert = !value && i !== scene; element.setAttribute('aria-hidden', String(!value && i !== scene)); });
-      gsap.to(zoom, { value: value ? 1 : 0, duration: reducedMotion() ? .05 : .9, ease: ease.inOut, overwrite: true });
     }
     function pluck(row: number, x = .5, strength = 1, note = true, delay = 0) {
       const string = strings[row];
@@ -220,16 +195,11 @@ export function start() {
       if (time - lastAudioUpdate > .065) { audio.setMotion(smoothedSpeed); lastAudioUpdate = time; }
       document.body.dataset.motion = smoothedSpeed > .03 ? 'moving' : 'resting';
       if (Math.abs(target - position) < .0001) position = target;
-      const viewScale = 1 + (overviewScale - 1) * zoom.value;
-      const viewX = -position * width * chapterSpacing * (1 - zoom.value) + overviewX * zoom.value;
-      const camera = -viewX / (width * viewScale);
-      const viewY = overviewY * zoom.value;
-      gsap.set(world, {
-        x: viewX,
-        y: viewY,
-        scale: viewScale,
-      });
-      if (!overview) updateScene(Math.round(position));
+      const viewScale = 1;
+      const viewY = 0;
+      const camera = position * chapterSpacing;
+      setWorldX(-position * width * chapterSpacing);
+      updateScene(Math.round(position));
       paths.forEach((path, row) => {
         let d = '';
         for (let point = 0; point <= 64; point++) {
@@ -261,7 +231,7 @@ export function start() {
         element.style.left = `${x * width}px`;
         element.style.top = `${y}px`;
         element.style.rotate = `${-neckAngle * 180 / Math.PI}deg`;
-        element.style.opacity = String(!overview && !covered && smoothedSpeed > .04 ? Math.pow(mid, 2) * Math.min(1, smoothedSpeed * 3) : 0);
+        element.style.opacity = String(!covered && smoothedSpeed > .04 ? Math.pow(mid, 2) * Math.min(1, smoothedSpeed * 3) : 0);
       });
     };
 
@@ -275,6 +245,7 @@ export function start() {
       if (busy || desiredProject === isProject) return;
       busy = true;
       const opening = desiredProject;
+      canvasType(null);
       const point = sourceGeometry();
       const maxRadius = Math.hypot(width, height) * 1.1;
       if (opening) {
@@ -346,7 +317,7 @@ export function start() {
       gsap.set(disc, { rotationX: reducedMotion() ? 0 : 8, rotationY: reducedMotion() ? 0 : -18, rotationZ: reducedMotion() ? 0 : tilt * .5 });
       const enter = () => {
         if (arranging) return;
-        if (overview) updateScene(Number(node.dataset.sceneId));
+        canvasType(Number(node.dataset.sceneId));
         setMeta(key);
         const rect = node.getBoundingClientRect();
         pluck(row, (rect.left + rect.width / 2) / width, 1);
@@ -354,6 +325,7 @@ export function start() {
         if (!reducedMotion()) gsap.to(disc, { rotationX: -4, rotationY: 3, rotationZ: 0, scale: 1.035, duration: .85, ease: ease.out, overwrite: true });
       };
       const leave = () => {
+        canvasType(null);
         gsap.to(info, { opacity: 0, y: 5, duration: .25, ease: ease.soft, overwrite: true });
         node.style.zIndex = '';
         if (!reducedMotion()) gsap.to(disc, { rotationX: 8, rotationY: -18, rotationZ: tilt * .5, scale: 1, duration: 1.05, ease: ease.out, overwrite: true });
@@ -375,12 +347,11 @@ export function start() {
       listen(node, 'click', event => {
         event.preventDefault();
         if (key === 'nba') void openNBA(node);
-        else { strum(); if (overview) { goTo(Number(node.dataset.sceneId)); setOverview(false); } else toast(`${projects[key].title}. Project preview.`); }
+        else { strum(); toast(`${projects[key].title}. Project preview.`); }
       });
     });
     listen(board, 'pointermove', event => {
-      if (isProject || busy || about.open || indexDialog.open) return;
-      if (overview) return;
+      if (isProject || busy) return;
       const now = performance.now();
       pointerX = event.clientX;
       if (dragging) { target = gsap.utils.clamp(0, 2, dragStartPosition - (event.clientX - dragStartX) / width); return; }
@@ -426,7 +397,7 @@ export function start() {
     listen(board, 'pointerup', releaseDrag);
     listen(board, 'pointercancel', releaseDrag);
     listen(board, 'wheel', event => {
-      if (isProject || busy || about.open || indexDialog.open) return;
+      if (isProject || busy) return;
       event.preventDefault();
       const unit = event.deltaMode === 1 ? 20 : event.deltaMode === 2 ? width : 1;
       const delta = Math.abs(event.deltaX) >= Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
@@ -436,10 +407,8 @@ export function start() {
     }, { passive: false });
     listen(previousButton, 'click', () => goTo(scene - 1));
     listen(nextButton, 'click', () => goTo(scene + 1));
-    listen(zoomButton, 'click', () => setOverview(!overview));
     listen(document.querySelector('[data-play-chord]')!, 'click', () => { strum(); announce.textContent = `Playing ${chords[scene].name}.`; });
     listen(window, 'keydown', event => {
-      if (about.open || indexDialog.open) return;
       if (!firstInteraction && ['Enter', ' ', 'ArrowLeft', 'ArrowRight', '1', '2', '3', '4'].includes(event.key)) { firstInteraction = true; void unlock(); }
       if (event.key === 'Escape' && desiredProject) { event.preventDefault(); backToFretboard(); return; }
       if (isProject || busy || (event.target as HTMLElement).matches('input,textarea,select')) return;
@@ -450,32 +419,6 @@ export function start() {
     });
     document.querySelectorAll<HTMLElement>('[data-back]').forEach(link => listen(link, 'click', event => { event.preventDefault(); backToFretboard(); }));
     listen(window, 'popstate', () => { desiredProject = location.pathname.includes('/projects/budx-nba-house'); void reconcileProject(); });
-    document.querySelectorAll<HTMLElement>('[data-dialog]').forEach(button => listen(button, 'click', () => {
-      const dialog = button.dataset.dialog === 'about' ? about : indexDialog;
-      dialog.showModal();
-      if (!reducedMotion()) gsap.fromTo(dialog, { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: .4, ease: ease.out });
-    }));
-    [about, indexDialog].forEach(dialog => {
-      dialog.querySelectorAll('[data-close-dialog]').forEach(button => listen(button, 'click', () => dialog.close()));
-      listen(dialog, 'click', event => { if (event.target === dialog) { const rect = dialog.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close(); } });
-    });
-    document.querySelectorAll<HTMLElement>('[data-index-project]').forEach(button => listen(button, 'click', () => {
-      const key = button.dataset.indexProject as ProjectKey;
-      if (key === 'nba') {
-        const image = button.querySelector('img')!.getBoundingClientRect();
-        sourcePoint = { x: image.left + image.width / 2, y: image.top + image.height / 2, radius: image.width / 2 };
-        sourceNode = null;
-        indexDialog.close();
-        void openNBA();
-      } else {
-        indexDialog.close();
-        const nextScene = chords.findIndex(chord => chord.project === key);
-        if (nextScene >= 0) goTo(nextScene);
-        strum();
-        setMeta(key);
-        toast(`${projects[key].title}. Preview only.`);
-      }
-    }));
     const resize = () => {
       width = instrument.clientWidth || innerWidth;
       height = instrument.clientHeight || innerHeight;
@@ -507,7 +450,12 @@ export function start() {
     if (!reducedMotion() && !isProject) {
       arranging = true;
       document.body.classList.add('arranging');
-      const intro = gsap.timeline({ onComplete: () => { arranging = false; document.body.classList.remove('arranging'); } });
+      const intro = gsap.timeline({ onComplete: () => {
+        arranging = false;
+        document.body.classList.remove('arranging');
+        const active = nodes.find(node => node.matches(':hover, :focus'));
+        if (active) canvasType(Number(active.dataset.sceneId));
+      } });
       motions.filter(item => item.section === 0).forEach(item => {
         gsap.set(item.node, { x: 0, y: 50, scale: .12, opacity: 0 });
         intro.to(item.node, { x: 0, y: 0, scale: 1, opacity: 1, duration: 1.65, ease: ease.out }, .2);
