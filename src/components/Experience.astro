@@ -82,7 +82,7 @@ const description = project ? 'Creative development, production, showrunning and
         </div>
         <div class="browse-controls"><button data-prev aria-label="Previous chord">←</button><p><span class="desktop-instruction">Scroll for next project</span><span class="touch-instruction">Swipe to explore</span></p><button data-next aria-label="Next chord">→</button></div>
       </main>
-      <footer class="home-footer"><button class="zoom-toggle" data-zoom aria-pressed="false" hidden={import.meta.env.PUBLIC_HIDE_OVERVIEW === 'true'}>Zoom out</button><button class="sound-toggle" data-sound aria-pressed={String(defaultSoundOn)}><span class="sound-waves" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span data-sound-label>{defaultSoundOn ? 'Sound on' : 'Sound off'}</span></button></footer>
+      <footer class="home-footer"><button class="zoom-toggle" data-zoom aria-pressed="false" hidden={import.meta.env.PUBLIC_HIDE_OVERVIEW === 'true'}>Zoom out</button><button class="sound-toggle" data-sound aria-pressed={defaultSoundOn}><span class="sound-waves" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span data-sound-label>{defaultSoundOn ? 'Sound on' : 'Sound off'}</span></button></footer>
     </div>
 
     <article id="project" class="project-page" hidden={!project} inert={!project} aria-label="BUDX NBA House project breakdown">

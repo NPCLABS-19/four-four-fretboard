@@ -9,7 +9,7 @@ const run = (command, args, cwd = root, env = process.env) => execFileSync(comma
 const read = (args, cwd = root) => execFileSync('git', args, { cwd, encoding: 'utf8' }).trim();
 
 run('npm', ['run', 'check']);
-run('npm', ['run', 'build'], root, { ...process.env, GITHUB_PAGES: 'true' });
+run('npm', ['run', 'build'], root, { ...process.env, GITHUB_PAGES: 'true', PUBLIC_HIDE_OVERVIEW: process.env.PUBLIC_HIDE_OVERVIEW ?? 'true', PUBLIC_SOUND_DEFAULT: process.env.PUBLIC_SOUND_DEFAULT ?? 'on' });
 const stage = mkdtempSync(join(tmpdir(), 'four-four-pages-'));
 try {
   run('git', ['init', '-b', 'gh-pages'], stage);
