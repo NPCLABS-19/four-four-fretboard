@@ -4,6 +4,7 @@ import { chords, projects, tuningNames, noteName } from '../data/site';
 import '../styles/site.css';
 interface Props { project?: boolean }
 const { project = false } = Astro.props;
+const defaultSoundOn = import.meta.env.PUBLIC_SOUND_DEFAULT === 'on';
 const title = project ? 'BUDX NBA House | 4/4 Experiences' : '4/4 Experiences | Work in four strings';
 const description = project ? 'Creative development, production, showrunning and on-ground execution for BUDX NBA House 2025. An experience by 4/4.' : '4/4 Experiences is a subculture think tank. Play four strings to discover our branded experiences, original IPs and festival work.';
 ---
@@ -81,7 +82,7 @@ const description = project ? 'Creative development, production, showrunning and
         </div>
         <div class="browse-controls"><button data-prev aria-label="Previous chord">←</button><p><span class="desktop-instruction">Scroll for next project</span><span class="touch-instruction">Swipe to explore</span></p><button data-next aria-label="Next chord">→</button></div>
       </main>
-      <footer class="home-footer"><button class="zoom-toggle" data-zoom aria-pressed="false">Zoom out</button><button class="sound-toggle" data-sound aria-pressed="false"><span class="sound-waves" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span data-sound-label>Sound off</span></button></footer>
+      <footer class="home-footer"><button class="zoom-toggle" data-zoom aria-pressed="false" hidden={import.meta.env.PUBLIC_HIDE_OVERVIEW === 'true'}>Zoom out</button><button class="sound-toggle" data-sound aria-pressed={String(defaultSoundOn)}><span class="sound-waves" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span data-sound-label>{defaultSoundOn ? 'Sound on' : 'Sound off'}</span></button></footer>
     </div>
 
     <article id="project" class="project-page" hidden={!project} inert={!project} aria-label="BUDX NBA House project breakdown">

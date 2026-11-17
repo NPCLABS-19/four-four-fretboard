@@ -61,6 +61,7 @@ export function start() {
     let desiredProject = isProject;
     let busy = false;
     let firstInteraction = false;
+    let soundWanted = import.meta.env.PUBLIC_SOUND_DEFAULT === 'on';
     let sourcePoint: { x: number; y: number; radius: number } | null = null;
     let sourceNode: HTMLElement | null = null;
     let metaKey: ProjectKey | null = null;
@@ -89,15 +90,17 @@ export function start() {
     if (!isProject) history.replaceState({ ...history.state, fretboard: true }, '', location.href);
 
     function soundState() {
-      document.body.dataset.sound = audio.enabled ? 'on' : 'off';
+      document.body.dataset.sound = soundWanted ? 'on' : 'off';
       soundButtons.forEach(button => {
-        button.setAttribute('aria-pressed', String(audio.enabled));
-        button.querySelector('[data-sound-label]')!.textContent = audio.enabled ? 'Sound on' : 'Sound off';
+        button.setAttribute('aria-pressed', String(soundWanted));
+        button.querySelector('[data-sound-label]')!.textContent = soundWanted ? 'Sound on' : 'Sound off';
       });
     }
     async function unlock() {
-      try { await audio.enable(); soundState(); }
-      catch { audio.mute(); soundState(); }
+      soundWanted = true;
+      soundState();
+      try { await audio.enable(); if (!soundWanted) audio.mute(); }
+      catch { soundWanted = false; audio.mute(); soundState(); }
     }
     function stringY(x: number, row: number) {
       const sag = (Math.sin(Math.PI * x) - Math.sin(Math.PI * focusX / width)) * 12;
@@ -332,7 +335,7 @@ export function start() {
     }, { capture: true });
     soundButtons.forEach(button => listen(button, 'click', () => {
       firstInteraction = true;
-      if (audio.enabled) { audio.mute(); soundState(); }
+      if (soundWanted) { soundWanted = false; audio.mute(); soundState(); }
       else void unlock();
     }));
     nodes.forEach(node => {
@@ -486,6 +489,7 @@ export function start() {
     observer.observe(instrument);
     listen(document, 'visibilitychange', () => { if (document.hidden) audio.context?.suspend(); else if (audio.enabled) void audio.context?.resume(); });
     updateScene(0);
+    if (soundWanted) void unlock();
     soundState();
     function setTheme(night: boolean) {
       document.documentElement.dataset.theme = night ? 'night' : 'day';
